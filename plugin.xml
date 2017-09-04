@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        id="cordova-plugin-android-wifi-manager"
+        version="1.0.0">
+  <name>Android WifiManager</name>
+  <description>Cordova plugin for self-updating an app</description>
+  <author>Mirza Kapetanovic</author>
+  <keywords></keywords>
+  <license>ISC</license>
+  <repo>git+https://github.com/kapetan/cordova-plugin-android-wifi-manager.git</repo>
+  <issue>https://github.com/kapetan/cordova-plugin-android-wifi-manager/issues</issue>
+  <platform name="android">
+    <js-module src="www/index.js" name="WifiManager">
+      <clobbers target="window.WifiManager" />
+    </js-module>
+
+    <config-file target="res/xml/config.xml" parent="/*">
+      <feature name="WifiManagerPlugin">
+        <param name="android-package" value="dk.kapetanovic.wifimanager.WifiManagerPlugin" />
+        <param name="onload" value="true" />
+      </feature>
+    </config-file>
+
+    <config-file target="AndroidManifest.xml" parent="/manifest">
+      <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+      <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    </config-file>
+
+    <source-file src="src/dk/kapetanovic/wifimanager/WifiManagerPlugin.java" target-dir="src/dk/kapetanovic/wifimanager" />
+  </platform>
+</plugin>

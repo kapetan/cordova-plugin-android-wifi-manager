@@ -1,0 +1,25 @@
+{
+  "name": "cordova-plugin-android-wifi-manager",
+  "version": "1.0.0",
+  "description": "Cordova plugin for accessing Android WifiManager",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {},
+  "scripts": {},
+  "cordova": {
+    "id": "cordova-plugin-android-wifi-manager",
+    "platforms": [
+      "android"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kapetan/cordova-plugin-android-wifi-manager.git"
+  },
+  "author": "Mirza Kapetanovic",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kapetan/cordova-plugin-android-wifi-manager/issues"
+  },
+  "homepage": "https://github.com/kapetan/cordova-plugin-android-wifi-manager#readme"
+}
