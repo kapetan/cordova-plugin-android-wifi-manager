@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.DhcpInfo;
 import android.net.NetworkInfo;
+import android.net.wifi.ScanResult;
 import android.net.wifi.SupplicantState;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
@@ -28,6 +29,7 @@ public class WifiManagerPlugin extends CordovaPlugin {
     private static final String ACTION_GET_CONFIGURATION_NETWORKS = "getConfiguredNetworks";
     private static final String ACTION_GET_CONNECTION_INFO = "getConnectionInfo";
     private static final String ACTION_GET_DHCP_INFO = "getDhcpInfo";
+    private static final String ACTION_GET_SCAN_RESULTS = "getScanResults";
     private static final String ACTION_GET_WIFI_STATE = "getWifiState";
     private static final String ACTION_IS_WIFI_ENABLED = "isWifiEnabled";
     private static final String ACTION_IS_SCAN_ALWAYS_AVAILABLE = "isScanAlwaysAvailable";
@@ -79,6 +81,7 @@ public class WifiManagerPlugin extends CordovaPlugin {
         else if(action.equals(ACTION_GET_CONFIGURATION_NETWORKS)) getConfiguredNetworks(callbackContext);
         else if(action.equals(ACTION_GET_CONNECTION_INFO)) getConnectionInfo(callbackContext);
         else if(action.equals(ACTION_GET_DHCP_INFO)) getDhcpInfo(callbackContext);
+        else if(action.equals(ACTION_GET_SCAN_RESULTS)) getScanResults(callbackContext);
         else if(action.equals(ACTION_GET_WIFI_STATE)) getWifiState(callbackContext);
         else if(action.equals(ACTION_IS_WIFI_ENABLED)) isWifiEnabled(callbackContext);
         else if(action.equals(ACTION_IS_SCAN_ALWAYS_AVAILABLE)) isScanAlwaysAvailable(callbackContext);
@@ -116,6 +119,17 @@ public class WifiManagerPlugin extends CordovaPlugin {
     private void getDhcpInfo(CallbackContext callbackContext) throws JSONException {
         DhcpInfo dhcpInfo = wifiManager.getDhcpInfo();
         JSONObject json = toJSON(dhcpInfo);
+        callbackContext.sendPluginResult(OK(json));
+    }
+
+    private void getScanResults(CallbackContext callbackContext) throws JSONException {
+        List<ScanResult> scanResults = wifiManager.getScanResults();
+        JSONArray json = new JSONArray();
+
+        for(ScanResult scanResult : scanResults) {
+            json.put(toJSON(scanResult));
+        }
+
         callbackContext.sendPluginResult(OK(json));
     }
 
@@ -242,6 +256,23 @@ public class WifiManagerPlugin extends CordovaPlugin {
         json.put("leaseDuration", dhcpInfo.leaseDuration);
         json.put("netmask", dhcpInfo.netmask);
         json.put("serverAddress", dhcpInfo.serverAddress);
+
+        return json;
+    }
+
+    private static JSONObject toJSON(ScanResult scanResult) throws JSONException {
+        if(scanResult == null) return null;
+
+        JSONObject json = new JSONObject();
+        json.put("BSSID", scanResult.BSSID);
+        json.put("SSID", scanResult.SSID);
+        json.put("capabilities", scanResult.capabilities);
+        json.put("centerFreq0", scanResult.centerFreq0);
+        json.put("centerFreq1", scanResult.centerFreq1);
+        json.put("channelWidth", toStringChannelWidth(scanResult.channelWidth));
+        json.put("frequency", scanResult.frequency);
+        json.put("level", scanResult.level);
+        json.put("timestamp", scanResult.timestamp);
 
         return json;
     }
@@ -392,6 +423,17 @@ public class WifiManagerPlugin extends CordovaPlugin {
             case ConnectivityManager.TYPE_WIMAX: return  "WIMAX";
             case ConnectivityManager.TYPE_ETHERNET: return "ETHERNET";
             case ConnectivityManager.TYPE_BLUETOOTH: return "BLUETOOTH";
+            default: return null;
+        }
+    }
+
+    private static String toStringChannelWidth(int channelWidth) {
+        switch(channelWidth) {
+            case ScanResult.CHANNEL_WIDTH_20MHZ: return "20MHZ";
+            case ScanResult.CHANNEL_WIDTH_40MHZ: return "40MHZ";
+            case ScanResult.CHANNEL_WIDTH_80MHZ: return "80MHZ";
+            case ScanResult.CHANNEL_WIDTH_160MHZ: return "160MHZ";
+            case ScanResult.CHANNEL_WIDTH_80MHZ_PLUS_MHZ: return  "80MHZ_PLUS_MHZ";
             default: return null;
         }
     }

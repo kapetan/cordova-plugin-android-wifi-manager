@@ -3,6 +3,7 @@ var METHODS = [
   'getConfiguredNetworks',
   'getConnectionInfo',
   'getDhcpInfo',
+  'getScanResults',
   'getWifiState',
   'isWifiEnabled',
   'isScanAlwaysAvailable',
