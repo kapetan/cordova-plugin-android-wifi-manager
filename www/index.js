@@ -1,57 +1,66 @@
-// module.exports = function (href, cb) {
-//     var self = {
-//       download: download,
-//       onprogress: null,
-//       ondownload: null,
-//       oninstall: null,
-//       onerror: null
-//     }
+var METHODS = [
+  'addNetwork',
+  'getConfiguredNetworks',
+  'getConnectionInfo',
+  'getDhcpInfo',
+  'getWifiState',
+  'isWifiEnabled',
+  'isScanAlwaysAvailable',
+  'setWifiEnabled'
+]
 
-//     return self
+var noop = function () {}
+var slice = Array.prototype.slice
 
-//     function download () {
-//       var path = cordova.file.externalCacheDirectory + 'update.apk'
-//       var fileTransfer = new window.FileTransfer()
-
-//       if (self.onprogress) fileTransfer.onprogress = self.onprogress
-
-//       // TODO: false should be true, otherwise it will download unsigned apps
-//       fileTransfer.download(href, path, ondownload, onerror, false, {})
-//     }
-
-//     function ondownload (entry) {
-//       if (self.ondownload) self.ondownload(entry)
-//       install(entry)
-//     }
-
-//     function install (entry) {
-//       cordova.exec(oninstall, onerror, 'SelfUpdate', 'Install', [entry.toURL()])
-//     }
-
-//     function oninstall (res) {
-//       if (self.oninstall) self.oninstall(res)
-//       cb(null, res)
-//     }
-
-//     function onerror (err) {
-//       if (self.onerror) self.onerror(err)
-//       return cb(err)
-//     }
-//   }
-
-var WifiManager = function() {
-
-};
-
-WifiManager.prototype.exec = function(args, cb) {
-  if(!cb && typeof args === 'function') {
-    cb = args;
-    args = null;
+var exec = function (method, args, cb) {
+  var onsucces = function () {
+    var args = slice.call(arguments)
+    args.unshift(null)
+    cb.apply(null, args)
   }
 
-  args = args || [];
+  var onerror = function (err) {
+    err = (err instanceof Error) ? err : new Error(err)
+    cb(err)
+  }
 
-  cordova.exec(cb, cb, 'WifiManagerPlugin', 'onNetworkChange', args);
-};
+  window.cordova.exec(onsucces, onerror, 'WifiManagerPlugin', method, args || [])
+}
 
-module.exports = new WifiManager;
+var WifiManager = function () {
+  this.onnetworkidschanged = null
+  this.onnetworkstatechanged = null
+  this.onrssichanged = null
+  this.onscanresultsavailable = null
+  this.onsupplicantconnectionchange = null
+  this.onsupplicantstatechanged = null
+  this.onwifistatechanged = null
+  this.onevent = null
+  this.onerror = null
+
+  var self = this
+
+  exec('onChange', null, function (err, result) {
+    if (err) {
+      if (self.onerror) self.onerror(err)
+      return
+    }
+
+    var event = result.event.replace(/_/g, '').toLowerCase()
+    var cb = self['on' + event]
+    if (cb) cb.call(self, result.data)
+    if (self.onevent) self.onevent(event, result.data)
+  })
+}
+
+METHODS.forEach(function (method) {
+  WifiManager.prototype[method] = function () {
+    var args = slice.call(arguments)
+    var cb = args[args.length - 1]
+    if (typeof cb === 'function') args.pop()
+    else cb = noop
+    exec(method, args, cb)
+  }
+})
+
+module.exports = new WifiManager()

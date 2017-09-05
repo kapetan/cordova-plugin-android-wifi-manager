@@ -4,8 +4,12 @@
   "description": "Cordova plugin for accessing Android WifiManager",
   "main": "index.js",
   "dependencies": {},
-  "devDependencies": {},
-  "scripts": {},
+  "devDependencies": {
+    "standard": "^10.0.3"
+  },
+  "scripts": {
+    "test": "standard --verbose"
+  },
   "cordova": {
     "id": "cordova-plugin-android-wifi-manager",
     "platforms": [
