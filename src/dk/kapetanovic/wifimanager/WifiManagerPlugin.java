@@ -5,10 +5,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.DhcpInfo;
+import android.net.NetworkInfo;
+import android.net.wifi.SupplicantState;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
-import android.telecom.Call;
+import android.net.ConnectivityManager;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
@@ -73,18 +75,6 @@ public class WifiManagerPlugin extends CordovaPlugin {
 
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
-        //PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);
-        //callbackContext.sendPluginResult(result);
-
-        //getConnectionInfo(callbackContext);
-        //getWifiState(callbackContext);
-        //isWifiEnabled(callbackContext);
-        //isScanAlwaysAvailable(callbackContext);
-        //getDhcpInfo(callbackContext);
-        //getConfiguredNetworks(callbackContext);
-        //addNetwork(args, callbackContext);
-        //setWifiEnabled(args, callbackContext);
-
         if(action.equals(ACTION_ADD_NETWORK)) addNetwork(args, callbackContext);
         else if(action.equals(ACTION_GET_CONFIGURATION_NETWORKS)) getConfiguredNetworks(callbackContext);
         else if(action.equals(ACTION_GET_CONNECTION_INFO)) getConnectionInfo(callbackContext);
@@ -256,6 +246,27 @@ public class WifiManagerPlugin extends CordovaPlugin {
         return json;
     }
 
+    private static JSONObject toJSON(NetworkInfo networkInfo) throws JSONException {
+        if(networkInfo == null) return null;
+
+        JSONObject json = new JSONObject();
+        json.put("detailedState", networkInfo.getDetailedState());
+        json.put("extraInfo", networkInfo.getExtraInfo());
+        json.put("reason", networkInfo.getReason());
+        json.put("state", networkInfo.getState());
+        json.put("subtype", networkInfo.getSubtype());
+        json.put("subtypeName", networkInfo.getSubtypeName());
+        json.put("type", toStringNetworkType(networkInfo.getType()));
+        json.put("typeName", networkInfo.getTypeName());
+        json.put("available", networkInfo.isAvailable());
+        json.put("connected", networkInfo.isConnected());
+        json.put("connectedOrConnecting", networkInfo.isConnectedOrConnecting());
+        json.put("failover", networkInfo.isFailover());
+        json.put("roaming", networkInfo.isRoaming());
+
+        return json;
+    }
+
     private static WifiConfiguration fromJSONWifiConfiguration(JSONObject json) throws JSONException {
         WifiConfiguration wifiConfig = new WifiConfiguration();
 
@@ -374,6 +385,17 @@ public class WifiManagerPlugin extends CordovaPlugin {
         }
     }
 
+    private static String toStringNetworkType(int type) {
+        switch(type) {
+            case ConnectivityManager.TYPE_MOBILE: return "MOBILE";
+            case ConnectivityManager.TYPE_WIFI: return "WIFI";
+            case ConnectivityManager.TYPE_WIMAX: return  "WIMAX";
+            case ConnectivityManager.TYPE_ETHERNET: return "ETHERNET";
+            case ConnectivityManager.TYPE_BLUETOOTH: return "BLUETOOTH";
+            default: return null;
+        }
+    }
+
     private static int fromStringWifiConfigurationStatus(String status) {
         if(status.equals("CURRENT")) return WifiConfiguration.Status.CURRENT;
         if(status.equals("DISABLED")) return WifiConfiguration.Status.DISABLED;
@@ -391,20 +413,73 @@ public class WifiManagerPlugin extends CordovaPlugin {
     private class WifiBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
+            if(onChange == null) return;
+
+            String event = null;
             String action = intent.getAction();
             JSONObject json = new JSONObject();
+            JSONObject data = new JSONObject();
 
             try {
-                json.put("event", action);
+                if(action.equals(WifiManager.NETWORK_IDS_CHANGED_ACTION)) {
+                    event = "NETWORK_IDS_CHANGED";
+                } else if(action.equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)) {
+                    event = "NETWORK_STATE_CHANGED";
+
+                    NetworkInfo networkInfo = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
+                    String bssid = intent.getStringExtra(WifiManager.EXTRA_BSSID);
+                    WifiInfo wifiInfo = intent.getParcelableExtra(WifiManager.EXTRA_WIFI_INFO);
+
+                    data.put("networkInfo", toJSON(networkInfo));
+                    data.put("BSSID", bssid == null ? JSONObject.NULL : bssid);
+                    data.put("wifiInfo", wifiInfo == null ? JSONObject.NULL : toJSON(wifiInfo));
+                } else if(action.equals(WifiManager.RSSI_CHANGED_ACTION)) {
+                    event = "RSSI_CHANGED";
+                    int rssi = intent.getIntExtra(WifiManager.EXTRA_NEW_RSSI, 0);
+                    data.put("RSSI", rssi);
+                } else if(action.equals(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)) {
+                    event = "SCAN_RESULTS_AVAILABLE";
+                    boolean updated = intent.getBooleanExtra(WifiManager.EXTRA_RESULTS_UPDATED, false);
+                    data.put("resultsUpdated", updated);
+                } else if(action.equals(WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION)) {
+                    event = "SUPPLICANT_CONNECTION_CHANGE";
+                    boolean connected = intent.getBooleanExtra(WifiManager.EXTRA_SUPPLICANT_CONNECTED, false);
+                    data.put("supplicantConnected", connected);
+                } else if(action.equals(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION)) {
+                    event = "SUPPLICANT_STATE_CHANGED";
+
+                    SupplicantState newState = intent.getParcelableExtra(WifiManager.EXTRA_NEW_STATE);
+                    data.put("newState", newState);
+
+                    if(intent.hasExtra(WifiManager.EXTRA_SUPPLICANT_ERROR)) {
+                        int error = intent.getIntExtra(WifiManager.EXTRA_SUPPLICANT_ERROR, 0);
+                        String name = error == WifiManager.ERROR_AUTHENTICATING ?
+                                "ERROR_AUTHENTICATING" : "ERROR_UNKNOWN";
+                        data.put("supplicantError", name);
+                    } else {
+                        data.put("supplicantError", JSONObject.NULL);
+                    }
+                } else if(action.equals(WifiManager.WIFI_STATE_CHANGED_ACTION)) {
+                    event = "WIFI_STATE_CHANGED";
+
+                    int newState = intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE, 0);
+                    int prevState = intent.getIntExtra(WifiManager.EXTRA_PREVIOUS_WIFI_STATE, 0);
+
+                    data.put("wifiState", toStringWifiState(newState));
+                    data.put("previousWifiState", toStringWifiState(prevState));
+                }
+
+                json.put("event", event);
+                json.put("data", data);
             } catch (JSONException e) {
-
-            }
-
-            if(onChange != null) {
-                PluginResult result = new PluginResult(PluginResult.Status.OK, json);
+                PluginResult result = new PluginResult(PluginResult.Status.ERROR, e.getMessage());
                 result.setKeepCallback(true);
                 onChange.sendPluginResult(result);
             }
+
+            PluginResult result = new PluginResult(PluginResult.Status.OK, json);
+            result.setKeepCallback(true);
+            onChange.sendPluginResult(result);
         }
     }
 }
