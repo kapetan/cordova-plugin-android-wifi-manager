@@ -1,14 +1,21 @@
 var METHODS = [
   'addNetwork',
+  'disableNetwork',
+  'disconnect',
+  'enableNetwork',
   'getConfiguredNetworks',
   'getConnectionInfo',
   'getDhcpInfo',
   'getScanResults',
   'getWifiState',
-  'isWifiEnabled',
   'isScanAlwaysAvailable',
+  'isWifiEnabled',
+  'reassociate',
+  'reconnect',
+  'removeNetwork',
   'setWifiEnabled',
-  'startScan'
+  'startScan',
+  'updateNetwork'
 ]
 
 var noop = function () {}

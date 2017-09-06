@@ -35,15 +35,22 @@ public class WifiManagerPlugin extends CordovaPlugin {
     private static int REQUEST_CODE_SCAN_RESULTS = 0;
 
     private static final String ACTION_ADD_NETWORK = "addNetwork";
+    private static final String ACTION_DISABLE_NETWORK = "disableNetwork";
+    private static final String ACTION_DISCONNECT = "disconnect";
+    private static final String ACTION_ENABLE_NETWORK = "enableNetwork";
     private static final String ACTION_GET_CONFIGURATION_NETWORKS = "getConfiguredNetworks";
     private static final String ACTION_GET_CONNECTION_INFO = "getConnectionInfo";
     private static final String ACTION_GET_DHCP_INFO = "getDhcpInfo";
     private static final String ACTION_GET_SCAN_RESULTS = "getScanResults";
     private static final String ACTION_GET_WIFI_STATE = "getWifiState";
-    private static final String ACTION_IS_WIFI_ENABLED = "isWifiEnabled";
     private static final String ACTION_IS_SCAN_ALWAYS_AVAILABLE = "isScanAlwaysAvailable";
+    private static final String ACTION_IS_WIFI_ENABLED = "isWifiEnabled";
+    private static final String ACTION_REASSOCIATE = "reassociate";
+    private static final String ACTION_RECONNECT = "reconnect";
+    private static final String ACTION_REMOVE_NETWORK = "removeNetwork";
     private static final String ACTION_SET_WIFI_ENABLED = "setWifiEnabled";
     private static final String ACTION_START_SCAN = "startScan";
+    private static final String ACTION_UPDATE_NETWORK = "updateNetwork";
     private static final String ACTION_ON_CHANGE = "onChange";
 
     private WifiManager wifiManager;
@@ -118,15 +125,22 @@ public class WifiManagerPlugin extends CordovaPlugin {
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
         if(action.equals(ACTION_ADD_NETWORK)) addNetwork(args, callbackContext);
+        else if(action.equals(ACTION_DISABLE_NETWORK)) disableNetwork(args, callbackContext);
+        else if(action.equals(ACTION_DISCONNECT)) disconnect(callbackContext);
+        else if(action.equals(ACTION_ENABLE_NETWORK)) enableNetwork(args, callbackContext);
         else if(action.equals(ACTION_GET_CONFIGURATION_NETWORKS)) getConfiguredNetworks(callbackContext);
         else if(action.equals(ACTION_GET_CONNECTION_INFO)) getConnectionInfo(callbackContext);
         else if(action.equals(ACTION_GET_DHCP_INFO)) getDhcpInfo(callbackContext);
         else if(action.equals(ACTION_GET_SCAN_RESULTS)) getScanResults(callbackContext);
         else if(action.equals(ACTION_GET_WIFI_STATE)) getWifiState(callbackContext);
-        else if(action.equals(ACTION_IS_WIFI_ENABLED)) isWifiEnabled(callbackContext);
         else if(action.equals(ACTION_IS_SCAN_ALWAYS_AVAILABLE)) isScanAlwaysAvailable(callbackContext);
+        else if(action.equals(ACTION_IS_WIFI_ENABLED)) isWifiEnabled(callbackContext);
+        else if(action.equals(ACTION_REASSOCIATE)) reassociate(callbackContext);
+        else if(action.equals(ACTION_RECONNECT)) reconnect(callbackContext);
+        else if(action.equals(ACTION_REMOVE_NETWORK)) removeNetwork(args, callbackContext);
         else if(action.equals(ACTION_SET_WIFI_ENABLED)) setWifiEnabled(args, callbackContext);
         else if(action.equals(ACTION_START_SCAN)) startScan(callbackContext);
+        else if(action.equals(ACTION_UPDATE_NETWORK)) updateNetwork(args, callbackContext);
         else if(action.equals(ACTION_ON_CHANGE)) onChange(callbackContext);
         else return false;
 
@@ -138,6 +152,24 @@ public class WifiManagerPlugin extends CordovaPlugin {
         WifiConfiguration wifiConfig = fromJSONWifiConfiguration(json);
         int networkId = wifiManager.addNetwork(wifiConfig);
         callbackContext.sendPluginResult(OK(networkId));
+    }
+
+    private void disableNetwork(JSONArray args, CallbackContext callbackContext) throws JSONException {
+        int networkId = args.getInt(0);
+        boolean result = wifiManager.disableNetwork(networkId);
+        callbackContext.sendPluginResult(OK(result));
+    }
+
+    private void disconnect(CallbackContext callbackContext) throws JSONException {
+        boolean result = wifiManager.disconnect();
+        callbackContext.sendPluginResult(OK(result));
+    }
+
+    private void enableNetwork(JSONArray args, CallbackContext callbackContext) throws JSONException {
+        int networkId = args.getInt(0);
+        boolean attemptConnect = args.getBoolean(1);
+        boolean result = wifiManager.enableNetwork(networkId, attemptConnect);
+        callbackContext.sendPluginResult(OK(result));
     }
 
     private void getConfiguredNetworks(CallbackContext callbackContext) throws JSONException {
@@ -195,14 +227,30 @@ public class WifiManagerPlugin extends CordovaPlugin {
         callbackContext.sendPluginResult(OK(wifiState));
     }
 
+    private void isScanAlwaysAvailable(CallbackContext callbackContext) throws JSONException {
+        boolean available = wifiManager.isScanAlwaysAvailable();
+        callbackContext.sendPluginResult(OK(available));
+    }
+
     private void isWifiEnabled(CallbackContext callbackContext) throws JSONException {
         boolean enabled = wifiManager.isWifiEnabled();
         callbackContext.sendPluginResult(OK(enabled));
     }
 
-    private void isScanAlwaysAvailable(CallbackContext callbackContext) throws JSONException {
-        boolean available = wifiManager.isScanAlwaysAvailable();
-        callbackContext.sendPluginResult(OK(available));
+    private void reassociate(CallbackContext callbackContext) throws JSONException {
+        boolean result = wifiManager.reassociate();
+        callbackContext.sendPluginResult(OK(result));
+    }
+
+    private void reconnect(CallbackContext callbackContext) throws JSONException {
+        boolean result = wifiManager.reconnect();
+        callbackContext.sendPluginResult(OK(result));
+    }
+
+    private void removeNetwork(JSONArray args, CallbackContext callbackContext) throws JSONException {
+        int networkId = args.getInt(0);
+        boolean result = wifiManager.removeNetwork(networkId);
+        callbackContext.sendPluginResult(OK(result));
     }
 
     private void setWifiEnabled(JSONArray args, CallbackContext callbackContext) throws JSONException {
@@ -214,6 +262,13 @@ public class WifiManagerPlugin extends CordovaPlugin {
     private void startScan(CallbackContext callbackContext) throws JSONException {
         boolean result = wifiManager.startScan();
         callbackContext.sendPluginResult(OK(result));
+    }
+
+    private void updateNetwork(JSONArray args, CallbackContext callbackContext) throws JSONException {
+        JSONObject json = args.getJSONObject(0);
+        WifiConfiguration wifiConfig = fromJSONWifiConfiguration(json);
+        int networkId = wifiManager.updateNetwork(wifiConfig);
+        callbackContext.sendPluginResult(OK(networkId));
     }
 
     private void onChange(CallbackContext callbackContext) {

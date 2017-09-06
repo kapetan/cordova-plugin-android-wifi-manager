@@ -4,7 +4,7 @@
         id="cordova-plugin-android-wifi-manager"
         version="1.0.0">
   <name>Android WifiManager</name>
-  <description>Cordova plugin for self-updating an app</description>
+  <description>Cordova plugin for accessing Android WifiManager</description>
   <author>Mirza Kapetanovic</author>
   <keywords></keywords>
   <license>ISC</license>
@@ -12,7 +12,7 @@
   <issue>https://github.com/kapetan/cordova-plugin-android-wifi-manager/issues</issue>
   <platform name="android">
     <js-module src="www/index.js" name="WifiManager">
-      <clobbers target="window.WifiManager" />
+      <clobbers target="cordova.plugins.WifiManager" />
     </js-module>
 
     <config-file target="res/xml/config.xml" parent="/*">
