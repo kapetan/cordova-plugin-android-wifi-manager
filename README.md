@@ -1,4 +1,4 @@
-#cordova-plugin-android-wifi-manager
+# cordova-plugin-android-wifi-manager
 
 Cordova plugin for accessing Android WifiManager.
 
