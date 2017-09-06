@@ -7,11 +7,19 @@ var METHODS = [
   'getWifiState',
   'isWifiEnabled',
   'isScanAlwaysAvailable',
-  'setWifiEnabled'
+  'setWifiEnabled',
+  'startScan'
 ]
 
 var noop = function () {}
 var slice = Array.prototype.slice
+
+var toError = function (obj) {
+  if (!obj) return new Error('ERROR')
+  if (obj instanceof Error) return obj
+  if (obj.data) return new Error(obj.data)
+  return new Error(obj)
+}
 
 var exec = function (method, args, cb) {
   var onsucces = function () {
@@ -21,8 +29,7 @@ var exec = function (method, args, cb) {
   }
 
   var onerror = function (err) {
-    err = (err instanceof Error) ? err : new Error(err)
-    cb(err)
+    cb(toError(err))
   }
 
   window.cordova.exec(onsucces, onerror, 'WifiManagerPlugin', method, args || [])
@@ -58,9 +65,14 @@ METHODS.forEach(function (method) {
   WifiManager.prototype[method] = function () {
     var args = slice.call(arguments)
     var cb = args[args.length - 1]
+
     if (typeof cb === 'function') args.pop()
     else cb = noop
-    exec(method, args, cb)
+
+    exec(method, args, function (err, result) {
+      if (err) return cb(err)
+      cb(null, result.data)
+    })
   }
 })
 

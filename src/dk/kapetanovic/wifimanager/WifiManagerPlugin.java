@@ -1,9 +1,11 @@
 package dk.kapetanovic.wifimanager;
 
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.net.DhcpInfo;
 import android.net.NetworkInfo;
 import android.net.wifi.ScanResult;
@@ -12,6 +14,7 @@ import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.net.ConnectivityManager;
+import android.text.TextUtils;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
@@ -22,9 +25,15 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class WifiManagerPlugin extends CordovaPlugin {
+    private static final String ACCESS_COARSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
+    private static final String ACCESS_FINE_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION;
+
+    private static int REQUEST_CODE_SCAN_RESULTS = 0;
+
     private static final String ACTION_ADD_NETWORK = "addNetwork";
     private static final String ACTION_GET_CONFIGURATION_NETWORKS = "getConfiguredNetworks";
     private static final String ACTION_GET_CONNECTION_INFO = "getConnectionInfo";
@@ -34,11 +43,13 @@ public class WifiManagerPlugin extends CordovaPlugin {
     private static final String ACTION_IS_WIFI_ENABLED = "isWifiEnabled";
     private static final String ACTION_IS_SCAN_ALWAYS_AVAILABLE = "isScanAlwaysAvailable";
     private static final String ACTION_SET_WIFI_ENABLED = "setWifiEnabled";
+    private static final String ACTION_START_SCAN = "startScan";
     private static final String ACTION_ON_CHANGE = "onChange";
 
     private WifiManager wifiManager;
-    private CallbackContext onChange;
     private BroadcastReceiver broadcastReceiver;
+    private List<CallbackContext> scanResultsCallbacks;
+    private volatile CallbackContext onChange;
 
     @Override
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
@@ -50,6 +61,7 @@ public class WifiManagerPlugin extends CordovaPlugin {
                 .getSystemService(Context.WIFI_SERVICE);
 
         broadcastReceiver = new WifiBroadcastReceiver();
+        scanResultsCallbacks = new ArrayList<CallbackContext>();
     }
 
     @Override
@@ -76,6 +88,34 @@ public class WifiManagerPlugin extends CordovaPlugin {
     }
 
     @Override
+    public void onRequestPermissionResult(int requestCode, String[] permissions, int[] grantResults) throws JSONException {
+        if(requestCode == REQUEST_CODE_SCAN_RESULTS) {
+            boolean hasPermission = true;
+
+            for(int result : grantResults) {
+                hasPermission = hasPermission && result == PackageManager.PERMISSION_GRANTED;
+            }
+
+            synchronized(scanResultsCallbacks) {
+                if(hasPermission) {
+                    List<ScanResult> scanResults = wifiManager.getScanResults();
+                    JSONArray json = toJSON(scanResults);
+                    for(CallbackContext callbackContext : scanResultsCallbacks) {
+                        callbackContext.sendPluginResult(OK(json));
+                    }
+                } else {
+                    String message = "Permission denied " + TextUtils.join(", ", permissions);
+                    for(CallbackContext callbackContext : scanResultsCallbacks) {
+                        callbackContext.sendPluginResult(ERROR(message));
+                    }
+                }
+
+                scanResultsCallbacks.clear();
+            }
+        }
+    }
+
+    @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
         if(action.equals(ACTION_ADD_NETWORK)) addNetwork(args, callbackContext);
         else if(action.equals(ACTION_GET_CONFIGURATION_NETWORKS)) getConfiguredNetworks(callbackContext);
@@ -86,6 +126,7 @@ public class WifiManagerPlugin extends CordovaPlugin {
         else if(action.equals(ACTION_IS_WIFI_ENABLED)) isWifiEnabled(callbackContext);
         else if(action.equals(ACTION_IS_SCAN_ALWAYS_AVAILABLE)) isScanAlwaysAvailable(callbackContext);
         else if(action.equals(ACTION_SET_WIFI_ENABLED)) setWifiEnabled(args, callbackContext);
+        else if(action.equals(ACTION_START_SCAN)) startScan(callbackContext);
         else if(action.equals(ACTION_ON_CHANGE)) onChange(callbackContext);
         else return false;
 
@@ -123,13 +164,29 @@ public class WifiManagerPlugin extends CordovaPlugin {
     }
 
     private void getScanResults(CallbackContext callbackContext) throws JSONException {
-        List<ScanResult> scanResults = wifiManager.getScanResults();
-        JSONArray json = new JSONArray();
+        if(hasLocationPermission()) {
+            // We should end up here most of the time
+            getScanResultsWithPermission(callbackContext);
+        } else {
+            synchronized(scanResultsCallbacks) {
+                if(hasLocationPermission()) {
+                    // We got permission while acquiring lock
+                    getScanResultsWithPermission(callbackContext);
+                    return;
+                }
 
-        for(ScanResult scanResult : scanResults) {
-            json.put(toJSON(scanResult));
+                scanResultsCallbacks.add(callbackContext);
+
+                if(scanResultsCallbacks.size() == 1) {
+                    cordova.requestPermission(this, REQUEST_CODE_SCAN_RESULTS, ACCESS_COARSE_LOCATION);
+                }
+            }
         }
+    }
 
+    private void getScanResultsWithPermission(CallbackContext callbackContext) throws JSONException {
+        List<ScanResult> scanResults = wifiManager.getScanResults();
+        JSONArray json = toJSON(scanResults);
         callbackContext.sendPluginResult(OK(json));
     }
 
@@ -151,6 +208,11 @@ public class WifiManagerPlugin extends CordovaPlugin {
     private void setWifiEnabled(JSONArray args, CallbackContext callbackContext) throws JSONException {
         boolean enabled = args.getBoolean(0);
         boolean result = wifiManager.setWifiEnabled(enabled);
+        callbackContext.sendPluginResult(OK(result));
+    }
+
+    private void startScan(CallbackContext callbackContext) throws JSONException {
+        boolean result = wifiManager.startScan();
         callbackContext.sendPluginResult(OK(result));
     }
 
@@ -296,6 +358,16 @@ public class WifiManagerPlugin extends CordovaPlugin {
         json.put("roaming", networkInfo.isRoaming());
 
         return json;
+    }
+
+    private static JSONArray toJSON(List<ScanResult> scanResults) throws JSONException {
+        JSONArray json = new JSONArray();
+
+        for(ScanResult scanResult : scanResults) {
+            json.put(toJSON(scanResult));
+        }
+
+        return  json;
     }
 
     private static WifiConfiguration fromJSONWifiConfiguration(JSONObject json) throws JSONException {
@@ -446,10 +518,23 @@ public class WifiManagerPlugin extends CordovaPlugin {
     }
 
     private static PluginResult OK(Object obj) throws JSONException {
+        return createPluginResult(obj, PluginResult.Status.OK);
+    }
+
+    private static PluginResult ERROR(Object obj) throws JSONException {
+        return createPluginResult(obj, PluginResult.Status.ERROR);
+    }
+
+    private static PluginResult createPluginResult(Object obj, PluginResult.Status status) throws JSONException {
         JSONObject json = new JSONObject();
         json.put("data", obj == null ? JSONObject.NULL : obj);
-        PluginResult result = new PluginResult(PluginResult.Status.OK, json);
+        PluginResult result = new PluginResult(status, json);
         return result;
+    }
+
+    private boolean hasLocationPermission() {
+        return cordova.hasPermission(ACCESS_COARSE_LOCATION) ||
+                cordova.hasPermission(ACCESS_FINE_LOCATION);
     }
 
     private class WifiBroadcastReceiver extends BroadcastReceiver {
@@ -513,8 +598,8 @@ public class WifiManagerPlugin extends CordovaPlugin {
 
                 json.put("event", event);
                 json.put("data", data);
-            } catch (JSONException e) {
-                PluginResult result = new PluginResult(PluginResult.Status.ERROR, e.getMessage());
+            } catch(JSONException e) {
+                PluginResult result = new PluginResult(PluginResult.Status.JSON_EXCEPTION, e.getMessage());
                 result.setKeepCallback(true);
                 onChange.sendPluginResult(result);
             }
