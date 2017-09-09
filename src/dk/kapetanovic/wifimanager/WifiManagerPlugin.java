@@ -176,8 +176,10 @@ public class WifiManagerPlugin extends CordovaPlugin {
         List<WifiConfiguration> networks = wifiManager.getConfiguredNetworks();
         JSONArray json = new JSONArray();
 
-        for(WifiConfiguration wifiConfig : networks) {
-            json.put(toJSON(wifiConfig));
+        if(networks != null) {
+            for(WifiConfiguration wifiConfig : networks) {
+                json.put(toJSON(wifiConfig));
+            }
         }
 
         callbackContext.sendPluginResult(OK(json));
@@ -418,8 +420,10 @@ public class WifiManagerPlugin extends CordovaPlugin {
     private static JSONArray toJSON(List<ScanResult> scanResults) throws JSONException {
         JSONArray json = new JSONArray();
 
-        for(ScanResult scanResult : scanResults) {
-            json.put(toJSON(scanResult));
+        if(scanResults != null) {
+            for(ScanResult scanResult : scanResults) {
+                json.put(toJSON(scanResult));
+            }
         }
 
         return  json;
