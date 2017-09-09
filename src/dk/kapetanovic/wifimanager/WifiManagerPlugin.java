@@ -601,6 +601,7 @@ public class WifiManagerPlugin extends CordovaPlugin {
         public void onReceive(Context context, Intent intent) {
             if(onChange == null) return;
 
+            PluginResult result = null;
             String event = null;
             String action = intent.getAction();
             JSONObject json = new JSONObject();
@@ -657,13 +658,12 @@ public class WifiManagerPlugin extends CordovaPlugin {
 
                 json.put("event", event);
                 json.put("data", data);
+
+                result = new PluginResult(PluginResult.Status.OK, json);
             } catch(JSONException e) {
-                PluginResult result = new PluginResult(PluginResult.Status.JSON_EXCEPTION, e.getMessage());
-                result.setKeepCallback(true);
-                onChange.sendPluginResult(result);
+                result = new PluginResult(PluginResult.Status.JSON_EXCEPTION, e.getMessage());
             }
 
-            PluginResult result = new PluginResult(PluginResult.Status.OK, json);
             result.setKeepCallback(true);
             onChange.sendPluginResult(result);
         }
