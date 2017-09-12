@@ -433,7 +433,7 @@ public class WifiManagerPlugin extends CordovaPlugin {
         WifiConfiguration wifiConfig = new WifiConfiguration();
 
         if(!json.isNull("BSSID")) wifiConfig.BSSID = json.getString("BSSID");
-        if(!json.isNull("SSID")) wifiConfig.BSSID = json.getString("SSID");
+        if(!json.isNull("SSID")) wifiConfig.SSID = json.getString("SSID");
 
         if(!json.isNull("allowedAuthAlgorithms")) {
             JSONObject authAlgorithms = json.getJSONObject("allowedAuthAlgorithms");
