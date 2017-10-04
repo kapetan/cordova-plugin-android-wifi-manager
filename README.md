@@ -25,7 +25,7 @@ WifiManager.setWifiEnabled(true, function (err, success) {
 
 All the exposed methods and events have matching [WifiManager](https://developer.android.com/reference/android/net/wifi/WifiManager.html) counterparts. The methods accept an optional callback as last argument, which is either called with an error object first, or with the value returned by the corresponding *Java* method.
 
-#### `addNetwork(wifiConfiguration, cb(err, netId))`
+#### `addNetwork(wifiConfiguration, callback(err, netId))`
 
 Add a new network to the set of configured networks.
 
