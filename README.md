@@ -162,7 +162,7 @@ Check if scanning is always available.
 
 #### `isWifiEnabled(callback(err, wifiEnabled))`
 
-Check if Wifi is either enabled or disabled.
+Check if WiFi is either enabled or disabled.
 
 #### `reassociate(callback(err, success))`
 
