@@ -14,8 +14,8 @@ WifiManager.onwifistatechanged = function (data) {
 }
 
 // Turn on Wifi
-WifiManager.setWifiEnabled(true, function (err, result) {
-  console.log(err, result)
+WifiManager.setWifiEnabled(true, function (err, success) {
+  console.log(err, success)
 })
 ```
 
@@ -187,3 +187,63 @@ Request a scan for WiFi networks.
 #### `updateNetwork(wifiConfiguration, callback(err, netId))`
 
 Update an already configured network.
+
+## Events
+
+The plugin also emits an event for each available broadcast intent action. The event callbacks are called with an object containing all the extra information from the intent.
+
+#### `onnetworkidschanged({})`
+
+The IDs of the configured networks might have changed.
+
+#### `onnetworkstatechanged({ networkInfo, BSSID, wifiInfo })`
+
+WiFi connectivity changed. The callback receives a [NetworkInfo](https://developer.android.com/reference/android/net/NetworkInfo.html) object, a *BSSID* string and a *WifiInfo* object.
+
+Example of a *NetworkInfo* object.
+
+```javascript
+{
+  detailedState: 'AUTHENTICATING',
+  extraInfo: null,
+  reason: null,
+  state: 'CONNECTING',
+  subtype: 0,
+  subtypeName: '',
+  type: 'WIFI',
+  typeName: 'WIFI',
+  available: true,
+  connected: false,
+  connectedOrConnecting: true,
+  failover: false,
+  roaming: false
+}
+```
+
+#### `onrssichanged({ RSSI })`
+
+Network signal strength changed.
+
+#### `onscanresultsavailable({ resultsUpdated })`
+
+WiFi network scan completed. Results can be retrieved using the `getScanResults` method.
+
+#### `onsupplicantconnectionchange({ supplicantConnected })`
+
+Connection to the supplicant has been established or lost.
+
+#### `onsupplicantstatechanged({ newState, supplicantError })`
+
+The state of establishing a connection to a network has changed. `newState` contains the new [SupplicantState](https://developer.android.com/reference/android/net/wifi/SupplicantState.html) value, and `supplicantError` indicates an error (e.g. `ERROR_AUTHENTICATING`).
+
+#### `onwifistatechanged({ wifiState, previousWifiState })`
+
+WiFi state changed.
+
+#### `onevent(name, data)`
+
+Called on all events with the event name (e.g. `wifistatechanged`) and extra information.
+
+#### `onerror`
+
+Called on internal errors.
