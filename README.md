@@ -79,6 +79,8 @@ Example of a *WifiConfiguration* object.
 }
 ```
 
+Possible values for *status*: `ENABLED`, `DISABLED` or `CURRENT`.
+
 #### `disableNetwork(netId, callback(err, success))`
 
 Disable a configured network.
@@ -115,6 +117,8 @@ Example of a *WifiInfo* object.
   supplicantState: 'COMPLETED'
 }
 ```
+
+See [SupplicantState](https://developer.android.com/reference/android/net/wifi/SupplicantState.html) for possible values for the *supplicantState* property.
 
 #### `getDhcpInfo(callback(err, dhcpInfo))`
 
@@ -153,6 +157,8 @@ Example of a *ScanResult* object.
   timestamp: 1507117436782
 }
 ```
+
+Possible values for *channelWidth*: `20MHZ`, `40MHZ`, `80MHZ`, `160MHZ` or `80MHZ_PLUS_MHZ`.
 
 #### `getWifiState(callback(err, wifiState))`
 
@@ -222,6 +228,8 @@ Example of a *NetworkInfo* object.
 }
 ```
 
+See [NetworkInfo.DetailedState](https://developer.android.com/reference/android/net/NetworkInfo.DetailedState.html) for possible values for the *detailedState* property, and [NetworkInfo.State](https://developer.android.com/reference/android/net/NetworkInfo.State.html) for possible values for the *state* property.
+
 #### `onrssichanged({ RSSI })`
 
 Network signal strength changed.
@@ -236,7 +244,7 @@ Connection to the supplicant has been established or lost.
 
 #### `onsupplicantstatechanged({ newState, supplicantError })`
 
-The state of establishing a connection to a network has changed. `newState` contains the new [SupplicantState](https://developer.android.com/reference/android/net/wifi/SupplicantState.html) value, and `supplicantError` indicates an error (e.g. `ERROR_AUTHENTICATING`).
+The state of establishing a connection to a network has changed. `newState` contains the new *SupplicantState* value, and `supplicantError` indicates an error (e.g. `ERROR_AUTHENTICATING`).
 
 #### `onwifistatechanged({ wifiState, previousWifiState })`
 
