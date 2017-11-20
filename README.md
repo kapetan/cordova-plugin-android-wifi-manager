@@ -257,3 +257,31 @@ Called on all events with the event name (e.g. `wifistatechanged`) and extra inf
 #### `onerror`
 
 Called on internal errors.
+
+## Hotspot
+
+The Android API does not expose a way to modify the hotspot configurations. But it is possible using reflection to access private and undocumented methods of the `WifiManager` instance. This approach is fragile and has some quirks, but has been tested to work with API version 23.
+
+#### `getWifiApConfiguration(callback(err, wifiConfiguration))`
+
+Get the current *WifiConfiguration* object for the hotspot.
+
+#### `getWifiApState(callback(err, wifiApState))`
+
+Get WiFi access point state. Possible values are `DISABLED`, `DISABLING`, `ENABLED`, `ENABLING` and `FAILED`.
+
+#### `isWifiApEnabled(callback(err, wifiApEnabled))`
+
+Check if WiFi access point is either enabled or disabled.
+
+#### `setWifiApConfiguration(wifiConfiguration, callback(err, success))`
+
+Set the WiFi access point configuration.
+
+#### `setWifiApEnabled(wifiConfiguration, enabled, callback(err, success))`
+
+Enable or disable WiFi access point with the given configuration.
+
+#### `onwifiapstatechanged({ wifiApState, previousWifiApState })`
+
+Event triggered when the WiFi access point state changes.

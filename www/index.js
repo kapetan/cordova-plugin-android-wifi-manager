@@ -7,12 +7,17 @@ var METHODS = [
   'getConnectionInfo',
   'getDhcpInfo',
   'getScanResults',
+  'getWifiApConfiguration',
+  'getWifiApState',
   'getWifiState',
   'isScanAlwaysAvailable',
+  'isWifiApEnabled',
   'isWifiEnabled',
   'reassociate',
   'reconnect',
   'removeNetwork',
+  'setWifiApConfiguration',
+  'setWifiApEnabled',
   'setWifiEnabled',
   'startScan',
   'updateNetwork'
@@ -24,7 +29,7 @@ var slice = Array.prototype.slice
 var toError = function (obj) {
   if (!obj) return new Error('ERROR')
   if (obj instanceof Error) return obj
-  if (obj.data) return new Error(obj.data)
+  if (obj.hasOwnProperty('data')) return new Error(obj.data || 'ERROR')
   return new Error(obj)
 }
 
@@ -49,6 +54,7 @@ var WifiManager = function () {
   this.onscanresultsavailable = null
   this.onsupplicantconnectionchange = null
   this.onsupplicantstatechanged = null
+  this.onwifiapstatechanged = null
   this.onwifistatechanged = null
   this.onevent = null
   this.onerror = null

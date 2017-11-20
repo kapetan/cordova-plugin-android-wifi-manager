@@ -1,12 +1,15 @@
-var console = document.getElementById('console')
+var textarea = document.getElementById('console')
 
 var log = function () {
+  console.log.apply(console, arguments)
+
   var args = Array.prototype.slice.call(arguments).map(function (arg) {
-    if (typeof arg === 'object' && arg) return JSON.stringify(arg)
+    if (arg instanceof Error) return `{Error: ${arg.message}}`;
+    else if (typeof arg === 'object' && arg) return JSON.stringify(arg)
     else return String(arg)
   })
 
-  console.value += `> ${args.join(' ')}\n`
+  textarea.value += `> ${args.join(' ')}\n`
 }
 
 document.addEventListener('deviceready', function () {
@@ -16,7 +19,7 @@ document.addEventListener('deviceready', function () {
     log('onevent', name, data)
   }
 
-  WifiManager.isWifiEnabled(function (err, isEnabled) {
-    log('isWifiEnabled', err, isEnabled)
+  WifiManager.isWifiEnabled(function (err, enabled) {
+    log('isWifiEnabled', err, enabled)
   })
 }, false)
