@@ -54,6 +54,7 @@ var WifiManager = function () {
   this.onscanresultsavailable = null
   this.onsupplicantconnectionchange = null
   this.onsupplicantstatechanged = null
+  this.onwifiapstatechanged = null
   this.onwifistatechanged = null
   this.onevent = null
   this.onerror = null
