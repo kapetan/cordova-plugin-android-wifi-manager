@@ -19,7 +19,6 @@ document.addEventListener('deviceready', function () {
     log('onevent', name, data)
   }
 
-
   WifiManager.isWifiEnabled(function (err, enabled) {
     log('isWifiEnabled', err, enabled)
   })
