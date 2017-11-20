@@ -12,30 +12,6 @@ var log = function () {
   textarea.value += `> ${args.join(' ')}\n`
 }
 
-var config = {
-  SSID: `"Test AP"`,
-  allowedAuthAlgorithms: {
-    OPEN: true
-  },
-  allowedGroupCiphers: {
-    CCMP: true,
-    TKIP: true
-  },
-  allowedKeyManagement: {
-    WPA_PSK: true
-  },
-  allowedPairwiseCiphers: {
-    CCMP: true,
-    TKIP: true
-  },
-  allowedProtocols: {
-    RSN: true,
-    WPA: true
-  },
-  status: 'ENABLED',
-  preSharedKey: '"secret"'
-}
-
 document.addEventListener('deviceready', function () {
   var WifiManager = window.cordova.plugins.WifiManager
 
@@ -43,38 +19,8 @@ document.addEventListener('deviceready', function () {
     log('onevent', name, data)
   }
 
-  // WifiManager.getWifiApConfiguration(function (err, config) {
-  //   log('getWifiApConfiguration', err, config)
-  // WifiManager.getWifiApState(function (err, state) {
-  //   log('getWifiApState', err, state)
 
-    WifiManager.setWifiApEnabled(config, true, function (err, result) {
-      log('setWifiApConfiguration', err, result)
-    })
-  // })
-
-
-  // WifiManager.isWifiEnabled(function (err, enabled) {
-  //   log('isWifiEnabled', err, enabled)
-
-  //   // WifiManager.setWifiApConfiguration(config, function (err, result) {
-  //   //   log('setWifiApConfiguration', err, result)
-
-  //     WifiManager.getWifiApConfiguration(function (err, config) {
-  //       log('getWifiApConfiguration', err, config)
-
-  //       WifiManager.getWifiApState(function (err, state) {
-  //         log('getWifiApState', err, state)
-
-  //         WifiManager.isWifiApEnabled(function (err, enabled) {
-  //           log('isWifiApEnabled', err, enabled)
-
-  //           WifiManager.setWifiApEnabled(config, true, function (err, result) {
-  //             log('setWifiApEnabled', err, result)
-  //           })
-  //         })
-  //       })
-  //     })
-  //   // })
-  // })
+  WifiManager.isWifiEnabled(function (err, enabled) {
+    log('isWifiEnabled', err, enabled)
+  })
 }, false)
