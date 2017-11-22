@@ -68,6 +68,7 @@ public class WifiManagerPlugin extends CordovaPlugin {
     private static final String ACTION_REASSOCIATE = "reassociate";
     private static final String ACTION_RECONNECT = "reconnect";
     private static final String ACTION_REMOVE_NETWORK = "removeNetwork";
+    private static final String ACTION_SAVE_CONFIGURATION = "saveConfiguration";
     private static final String ACTION_SET_WIFI_AP_CONFIGURATION = "setWifiApConfiguration";
     private static final String ACTION_SET_WIFI_AP_ENABLED = "setWifiApEnabled";
     private static final String ACTION_SET_WIFI_ENABLED = "setWifiEnabled";
@@ -188,6 +189,7 @@ public class WifiManagerPlugin extends CordovaPlugin {
         else if(action.equals(ACTION_REASSOCIATE)) reassociate(callbackContext);
         else if(action.equals(ACTION_RECONNECT)) reconnect(callbackContext);
         else if(action.equals(ACTION_REMOVE_NETWORK)) removeNetwork(args, callbackContext);
+        else if(action.equals(ACTION_SAVE_CONFIGURATION)) saveConfiguration(callbackContext);
         else if(action.equals(ACTION_SET_WIFI_AP_CONFIGURATION)) return setWifiApConfiguration(args, callbackContext);
         else if(action.equals(ACTION_SET_WIFI_AP_ENABLED)) return setWifiApEnabled(args, callbackContext);
         else if(action.equals(ACTION_SET_WIFI_ENABLED)) setWifiEnabled(args, callbackContext);
@@ -360,6 +362,11 @@ public class WifiManagerPlugin extends CordovaPlugin {
     private void removeNetwork(JSONArray args, CallbackContext callbackContext) throws JSONException {
         int networkId = args.getInt(0);
         boolean result = wifiManager.removeNetwork(networkId);
+        callbackContext.sendPluginResult(OK(result));
+    }
+
+    private void saveConfiguration(CallbackContext callbackContext) throws JSONException {
+        boolean result = wifiManager.saveConfiguration();
         callbackContext.sendPluginResult(OK(result));
     }
 

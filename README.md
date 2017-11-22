@@ -184,6 +184,10 @@ Reconnect to the currently active network, if we are currently disconnected.
 
 Remove a configured network.
 
+#### `saveConfiguration(callback(err, success))`
+
+Persist the current list of configured networks.
+
 #### `setWifiEnabled(enabled, callback(err, success))`
 
 Enable or disable WiFi.

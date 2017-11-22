@@ -16,6 +16,7 @@ var METHODS = [
   'reassociate',
   'reconnect',
   'removeNetwork',
+  'saveConfiguration',
   'setWifiApConfiguration',
   'setWifiApEnabled',
   'setWifiEnabled',
