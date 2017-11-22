@@ -1,6 +1,6 @@
 {
   "name": "cordova-plugin-android-wifi-manager",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Cordova plugin for accessing Android WifiManager",
   "main": "index.js",
   "dependencies": {},
