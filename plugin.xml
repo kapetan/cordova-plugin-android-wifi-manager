@@ -16,7 +16,6 @@
     </js-module>
 
     <config-file target="res/xml/config.xml" parent="/*">
-      <preference name="android-minSdkVersion" value="23" />
 
       <feature name="WifiManagerPlugin">
         <param name="android-package" value="dk.kapetanovic.wifimanager.WifiManagerPlugin" />
