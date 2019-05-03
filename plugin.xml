@@ -2,8 +2,8 @@
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
         xmlns:android="http://schemas.android.com/apk/res/android"
         id="cordova-plugin-android-wifi-manager"
-        version="1.0.0">
-  <name>Android WifiManager</name>
+        version="1.2.2">
+  <name>Android Wifi Manager</name>
   <description>Cordova plugin for accessing Android WifiManager</description>
   <author>Mirza Kapetanovic</author>
   <keywords></keywords>

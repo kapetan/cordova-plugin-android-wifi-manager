@@ -4,6 +4,10 @@ Cordova plugin for accessing Android WifiManager.
 
     cordova plugin add cordova-plugin-android-wifi-manager
 
+## Difference From Original Plugin
+
+1. Closed [issues](https://github.com/wizpanda/cordova-plugin-android-wifi-manager/issues?q=is%3Aissue+is%3Aclosed)
+
 ## Usage
 
 Access the plugin after the device is ready, exposed at `window.cordova.plugins.WifiManager`.
