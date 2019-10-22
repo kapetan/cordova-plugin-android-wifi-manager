@@ -35,8 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class WifiManagerPlugin extends CordovaPlugin {
-    private static final String ACCESS_COARSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
-    private static final String ACCESS_FINE_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION;
+
     private static final String ACTION_MANAGE_WRITE_SETTINGS = Settings.ACTION_MANAGE_WRITE_SETTINGS;
 
     private static final String WIFI_AP_STATE_CHANGED_ACTION = getStringField("WIFI_AP_STATE_CHANGED_ACTION");
@@ -267,7 +266,7 @@ public class WifiManagerPlugin extends CordovaPlugin {
                 scanResultsCallbacks.add(callbackContext);
 
                 if(scanResultsCallbacks.size() == 1) {
-                    cordova.requestPermission(this, REQUEST_CODE_SCAN_RESULTS, ACCESS_COARSE_LOCATION);
+                    cordova.requestPermission(this, REQUEST_CODE_SCAN_RESULTS, null);
                 }
             }
         }
@@ -813,8 +812,7 @@ public class WifiManagerPlugin extends CordovaPlugin {
     }
 
     private boolean hasLocationPermission() {
-        return cordova.hasPermission(ACCESS_COARSE_LOCATION) ||
-                cordova.hasPermission(ACCESS_FINE_LOCATION);
+        return false;
     }
 
     private boolean hasWriteSettingsPermission() {
