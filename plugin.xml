@@ -3,32 +3,32 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         id="cordova-plugin-android-wifi-manager"
         version="1.2.2">
-  <name>Android Wifi Manager</name>
-  <description>Cordova plugin for accessing Android WifiManager</description>
-  <author>Mirza Kapetanovic</author>
-  <keywords></keywords>
-  <license>ISC</license>
-  <repo>git+https://github.com/kapetan/cordova-plugin-android-wifi-manager.git</repo>
-  <issue>https://github.com/kapetan/cordova-plugin-android-wifi-manager/issues</issue>
-  <platform name="android">
-    <js-module src="www/index.js" name="WifiManager">
-      <clobbers target="cordova.plugins.WifiManager" />
-    </js-module>
+    <name>Android Wifi Manager</name>
+    <description>Cordova plugin for accessing Android WifiManager</description>
+    <author>Mirza Kapetanovic</author>
+    <keywords></keywords>
+    <license>ISC</license>
+    <repo>git+https://github.com/kapetan/cordova-plugin-android-wifi-manager.git</repo>
+    <issue>https://github.com/kapetan/cordova-plugin-android-wifi-manager/issues</issue>
+    <platform name="android">
+        <js-module src="www/index.js" name="WifiManager">
+            <clobbers target="cordova.plugins.WifiManager"/>
+        </js-module>
 
-    <config-file target="res/xml/config.xml" parent="/*">
+        <config-file target="res/xml/config.xml" parent="/*">
 
-      <feature name="WifiManagerPlugin">
-        <param name="android-package" value="dk.kapetanovic.wifimanager.WifiManagerPlugin" />
-        <param name="onload" value="true" />
-      </feature>
-    </config-file>
+            <feature name="WifiManagerPlugin">
+                <param name="android-package" value="dk.kapetanovic.wifimanager.WifiManagerPlugin"/>
+                <param name="onload" value="true"/>
+            </feature>
+        </config-file>
 
-    <config-file target="AndroidManifest.xml" parent="/manifest">
-      <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-      <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
-      <uses-permission android:name="android.permission.WRITE_SETTINGS" />
-    </config-file>
+        <config-file target="AndroidManifest.xml" parent="/manifest">
+            <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+            <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+            <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
+        </config-file>
 
-    <source-file src="src/dk/kapetanovic/wifimanager/WifiManagerPlugin.java" target-dir="src/dk/kapetanovic/wifimanager" />
-  </platform>
+        <source-file src="src/dk/kapetanovic/wifimanager/WifiManagerPlugin.java" target-dir="src/dk/kapetanovic/wifimanager"/>
+    </platform>
 </plugin>
