@@ -1,29 +1,31 @@
 {
-  "name": "cordova-plugin-android-wifi-manager",
-  "version": "1.2.1",
-  "description": "Cordova plugin for accessing Android WifiManager",
-  "main": "index.js",
-  "dependencies": {},
-  "devDependencies": {
-    "standard": "^10.0.3"
-  },
-  "scripts": {
-    "test": "standard --verbose"
-  },
-  "cordova": {
-    "id": "cordova-plugin-android-wifi-manager",
-    "platforms": [
-      "android"
-    ]
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/kapetan/cordova-plugin-android-wifi-manager.git"
-  },
-  "author": "Mirza Kapetanovic",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/kapetan/cordova-plugin-android-wifi-manager/issues"
-  },
-  "homepage": "https://github.com/kapetan/cordova-plugin-android-wifi-manager#readme"
+    "name": "cordova-plugin-android-wifi-manager",
+    "version": "1.2.3",
+    "description": "Cordova plugin for accessing Android WifiManager",
+    "main": "index.js",
+    "dependencies": {},
+    "devDependencies": {
+        "standard": "^10.0.3"
+    },
+    "scripts": {
+        "test": "standard --verbose",
+        "preversion": "git add CHANGELOG.md && git add plugin.xml",
+        "postversion": "git push && git push --tags"
+    },
+    "cordova": {
+        "id": "cordova-plugin-android-wifi-manager",
+        "platforms": [
+            "android"
+        ]
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/kapetan/cordova-plugin-android-wifi-manager.git"
+    },
+    "author": "Mirza Kapetanovic",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/kapetan/cordova-plugin-android-wifi-manager/issues"
+    },
+    "homepage": "https://github.com/kapetan/cordova-plugin-android-wifi-manager#readme"
 }
